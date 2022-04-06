@@ -25,6 +25,39 @@ class UsersService {
   findOne(id) {
     return this.users.find(item => item.id === id);
   }
+
+  create(data) {
+    const {username="", firstname="", image=""} = data;
+    const user = {
+      id:faker.datatype.uuid(),
+      username,
+      firstname,
+      image
+    }
+    this.users.push(user);
+    return user;
+  }
+
+  update(id, changes) {
+    const index = this.users.findIndex(item => item.id === id);
+    const validParameters = ['username', 'firstname', 'image'];
+    Object.keys(changes).forEach((key) => validParameters.includes(key) || delete changes[key]);
+    if (index === -1) {
+      throw new Error('User not found');
+    }
+    const user = this.users[index];
+    this.users[index] = {
+      ...user,
+      ...changes
+    }
+    return this.users[index]
+   }
+
+   delete(id) {
+    const index = this.users.findIndex(item => item.id === id);
+    this.users.splice(index, 1);
+    return id + " deleted";
+   }
 }
 
 module.exports = UsersService;

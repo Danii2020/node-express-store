@@ -18,8 +18,16 @@ class ProductsService {
     }
   }
 
-  create() {
-
+  create(data) {
+    const {name="", price=0, image=""} = data;
+    const newProduct = {
+      id:faker.datatype.uuid(),
+      name,
+      price,
+      image
+    }
+    this.products.push(newProduct);
+    return newProduct;
   }
 
   find() {
@@ -30,12 +38,28 @@ class ProductsService {
     return this.products.find(item => item.id === id);
   }
 
-  update() {
-
+  update(id, changes) {
+    const index = this.products.findIndex(item => item.id === id);
+    const validParameters = ['name', 'price', 'image'];
+    Object.keys(changes).forEach((key) => validParameters.includes(key) || delete changes[key]);
+    if (index === -1){
+      throw new Error('Product not found');
+    }
+    const product = this.products[index];
+    this.products[index] = {
+      ...product,
+      ...changes
+    }
+    return this.products[index];
   }
 
-  delete() {
-
+  delete(id) {
+    const index = this.products.findIndex(item => item.id === id);
+    if (index === -1){
+      throw new Error('Product not found');
+    }
+    this.products.splice(index, 1);
+    return id + ' deleted!';
   }
 }
 
