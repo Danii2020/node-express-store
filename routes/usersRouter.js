@@ -2,7 +2,8 @@
 const express = require('express');
 const router = express.Router();
 const UsersService = require('./../services/usersService');
-
+const validatorHandler = require('./../middlewares/validator.handler');
+const {createUserSchema, updateUserSchema, getUserSchema} = require('./../schemas/users.schema');
 const service = new UsersService();
 
 router.get('/', async (request, response) => {
@@ -10,13 +11,22 @@ router.get('/', async (request, response) => {
   response.status(200).json(users);
 });
 
-router.get('/:id', async (request, response) => {
-  const { id } = request.params;
-  const user = await service.findOne(id);
-  response.json(user);
+router.get('/:id',
+  validatorHandler(getUserSchema, 'params'),
+  async (request, response, next) => {
+  try {
+    const { id } = request.params;
+    const user = await service.findOne(id);
+    response.json(user);
+  } catch (error) {
+    next(error);
+  }
+
 });
 
-router.post('/', async (request, response) => {
+router.post('/',
+  validatorHandler(createUserSchema, 'body'),
+  async (request, response) => {
   const body = request.body;
   const user = await service.create(body);
   response.status(201).json({
@@ -25,7 +35,10 @@ router.post('/', async (request, response) => {
   });
 });
 
-router.patch('/:id', async(request, response) => {
+router.patch('/:id',
+  validatorHandler(getUserSchema, 'params'),
+  validatorHandler(updateUserSchema, 'body'),
+  async(request, response, next) => {
   try {
     const { id } = request.params;
     const body = request.body;
@@ -35,22 +48,18 @@ router.patch('/:id', async(request, response) => {
       user
   });
   } catch (error) {
-    response.status(404).json({
-      message:error.message
-    })
+    next(error);
   }
 
 });
 
-router.delete('/:id', async (request, response) => {
+router.delete('/:id', async (request, response, next) => {
   try {
     const { id } = request.params;
     const res = await service.delete(id);
     response.status(200).json(res);
   } catch (error) {
-    response.status(404).json({
-      message:error.message
-    });
+    next(error);
   }
 
 });
