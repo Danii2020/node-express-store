@@ -5,40 +5,54 @@ const CategoriesServices = require('./../services/categoriesService');
 
 const service = new CategoriesServices();
 
-router.get('/', (request, response) => {
-  const categories = service.find();
+router.get('/', async (request, response) => {
+  const categories = await service.find();
   response.json(categories);
 });
 
-router.get('/:id', (request, response) => {
+router.get('/:id', async (request, response) => {
   const { id } = request.params;
-  const category = service.findOne(id);
+  const category = await service.findOne(id);
   response.json(category);
 });
 
-router.post('/', (request, response) => {
+router.post('/', async (request, response) => {
   const body = request.body;
-  const newCategory = service.create(body);
+  const newCategory = await service.create(body);
   response.status(201).json({
     message:'created',
     data:newCategory
   });
 });
 
-router.patch('/:id', (request, response) => {
-  const { id } = request.params
-  const body = request.body;
-  const category = service.update(id, body);
-  response.status(200).json({
-    message:'updated',
-    category
+router.patch('/:id', async (request, response) => {
+  try {
+    const { id } = request.params
+    const body = request.body;
+    const category = await service.update(id, body);
+    response.status(200).json({
+      message:'updated',
+      category
   });
+  } catch (error) {
+    response.status(404).json({
+      message:error.message
+    });
+  }
+
 });
 
-router.delete('/:id', (request, response) => {
-  const { id } = request.params
-  const res = service.delete(id);
-  response.status(200).json(res);
+router.delete('/:id', async (request, response) => {
+  try {
+    const { id } = request.params
+    const res = await service.delete(id);
+    response.status(200).json(res);
+  } catch (error) {
+    response.status(404).json({
+      message:error.message
+    });
+  }
+
 });
 
 module.exports = router;

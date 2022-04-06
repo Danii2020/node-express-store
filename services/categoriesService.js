@@ -21,13 +21,19 @@ class CategoriesServices {
   }
 
   find() {
-    return this.categories;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.categories);
+      }, 5000)
+      resolve(this.categories);
+    });
+
   }
 
-  findOne(id) {
+  async findOne(id) {
     return this.categories.find(item => item.id === id);
   }
-  create(data) {
+  async create(data) {
     const {name="", products=[], description=""} = data;
     const category = {
       id:faker.datatype.uuid(),
@@ -39,7 +45,7 @@ class CategoriesServices {
     return category;
   }
 
-  update(id, changes) {
+  async update(id, changes) {
     const index = this.categories.findIndex(item => item.id === id);
     const validParameters = ['name', 'products', 'description'];
     Object.keys(changes).forEach((key) => validParameters.includes(key) || delete changes[key]);
@@ -54,8 +60,11 @@ class CategoriesServices {
     return this.categories[index]
    }
 
-   delete(id) {
+  async delete(id) {
     const index = this.categories.findIndex(item => item.id === id);
+    if (index === -1) {
+      throw new Error("Category not found");
+    }
     this.categories.splice(index, 1);
     return id + " deleted";
    }

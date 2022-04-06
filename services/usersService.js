@@ -19,14 +19,18 @@ class UsersService {
   }
 
   find() {
-    return this.users;
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(this.users);
+      }, 5000);
+    });
   }
 
-  findOne(id) {
+  async findOne(id) {
     return this.users.find(item => item.id === id);
   }
 
-  create(data) {
+  async create(data) {
     const {username="", firstname="", image=""} = data;
     const user = {
       id:faker.datatype.uuid(),
@@ -38,7 +42,7 @@ class UsersService {
     return user;
   }
 
-  update(id, changes) {
+  async update(id, changes) {
     const index = this.users.findIndex(item => item.id === id);
     const validParameters = ['username', 'firstname', 'image'];
     Object.keys(changes).forEach((key) => validParameters.includes(key) || delete changes[key]);
@@ -53,8 +57,11 @@ class UsersService {
     return this.users[index]
    }
 
-   delete(id) {
+   async delete(id) {
     const index = this.users.findIndex(item => item.id === id);
+    if (index === -1) {
+      throw new Error("User not found");
+    }
     this.users.splice(index, 1);
     return id + " deleted";
    }
