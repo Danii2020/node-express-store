@@ -25,7 +25,9 @@ router.get('/:id',
 
 });
 
-router.post('/', async (request, response) => {
+router.post('/',
+  validatorHandler(createCategorySchema, 'body'),
+  async (request, response) => {
   const body = request.body;
   const newCategory = await service.create(body);
   response.status(201).json({
